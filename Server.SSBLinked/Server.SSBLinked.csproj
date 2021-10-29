@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IcuBlazor.Server" Version="1.4.1-preview" />
+    <PackageReference Include="IcuBlazor.Native.Win" Version="1.4.1-preview" />
+    <!--
+    <ProjectReference Include="..\..\src\IcuBlazor.Server\IcuBlazor.Server.fsproj" />
+    <ProjectReference Include="..\..\src\IcuBlazor.Native.Win\IcuBlazor.Native.Win.fsproj" />
+    -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSB\CSB.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,115 @@
+﻿@page "/MyTests/LogTests"
+@inherits IcuBlazor.IcuTestSuite
+
+@using System.Text
+@using System.Text.RegularExpressions
+
+@code {
+
+    // The following two tests verify the same System Under Test (SUT), WeatherCounter.Weather.
+    // The first uses traditional unit testing & the other uses IcuBlazor.
+    //
+    // Take a moment to consider what code needs to be changed if we want 
+    // to check the Summary field.
+    //
+    // IcuBlazor Verification tests (Check.TextFile() & CheckDiv())
+    //  1) Eases test writing burden
+    //     - Do not need to know "correct" values when writing tests.
+    //  2) Reduces SUT/Test code coupling => low maintenance
+    //     - Often, do not need to change tests when SUT changes.
+
+    void Test_with_traditional_unit_tests()
+    {
+        var w = new Pages.WeatherCounter.Weather();  // System Under Test (SUT)
+        Check().Equal(0, w.TempC, "Init TempC");
+        Check().Equal(32, w.TempF, "Init TempF");
+        //Check().Equal("Cold", w.Summary, "Init Summary");
+
+        w.TempC = -10;
+        Check().Equal(15, w.TempF, "TempF when TempC = -10");
+        //Check().Equal("Cold", w.Summary, "Summary when TempC = -10");
+
+        w.TempC = 100;
+        Check().Equal(15, w.TempF, "TempF when TempC = 100");
+        //Check().Equal("Hot", w.Summary, "Summary when TempC = 100");
+    }
+
+    void Test_with_text_diff()
+    {
+        var w = new Pages.WeatherCounter.Weather();  // System Under Test (SUT)
+
+        // Note: StringBuilder.AppendLine differs between WASM & Server
+        var sb = new StringBuilder();
+        sb.AppendLine($"-- Weather init --");
+        sb.AppendLine(Conv.AsString(w));
+
+        w.TempC = -10;
+        sb.AppendLine($"\n-- Weather @ {w.TempC}°C --");
+        sb.AppendLine(Conv.AsString(w));
+
+        w.TempC = 100;
+        sb.AppendLine($"\n-- Weather @ {w.TempC}°C --");
+        sb.AppendLine(Conv.AsString(w));
+
+        Check().File("weather", sb.ToString(), "changing weather");
+    }
+
+    void Test_with_text_LogChecker()
+    {
+        var log = new LogChecker();
+        Check().Info("Put info messages here. ");
+        log.Section("Weather LogChecker Tests", () => {
+            var w = new Pages.WeatherCounter.Weather();
+            log.Note($"-- init --");
+            log.Note(Conv.AsString(w));
+
+            w.TempC = -10;
+            log.Note($"-- @ {w.TempC}°C --");
+            log.Note(Conv.AsString(w));
+
+            w.TempC = 100;
+            log.Note($"-- @ {w.TempC}°C --");
+            log.Note(Conv.AsString(w));
+        }); // on exit, automatically runs checker.TextFile(..)
+        Check().File("weather_logChecker", log.Flush());
+    }
+
+    Regex GuidMatcher = new Regex(
+        @"(?im)[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}");
+
+    public string replaceGUIDs(string s) {
+        // Use Regex to search & replace Guids
+
+        // e.g. convert "10d8616a-1922-4bb6-9a7d-2c0181983467" to "<guid>"
+        //return GuidMatcher.Replace(s, (m) => { return $"<guid>"; });
+
+        // e.g. convert "10d8616a-1922-4bb6-9a7d-2c0181983467" to "<g#>
+        var refnum = Str.RefCounter().Invoke;
+        return GuidMatcher.Replace(s, (m) => { return $"<g{refnum(m.Value)}>"; });
+    }
+
+    void test_logs_with_GUIDs_or_random_text() {
+
+        // For many log tests we need to remove randomness from strings.
+        // e.g. If your tests have GUIDs use replaceGUIDs() above.
+        var model_id1 = Guid.NewGuid();
+        var model_id2 = Guid.NewGuid();
+        var text = "model id = {"+model_id1+"}";
+        text += $"\nid2 = {model_id2} and id1 = {model_id1}";
+        var result = replaceGUIDs(text);
+
+        // The following @".." code is convenient but leaves extraneous newlines
+        // We use Str.CleanString() to normalize them.
+        var expect = @"
+model id = {<g0>}
+id2 = <g1> and id1 = <g0>
+";
+        expect = Str.CleanLines(expect);
+
+        Check().Info("Original text below is very random but the  test is consistent");
+        Check().Info(text);
+        Check().Text(result, expect, "replace GUIDS for consistent checks");
+    }
+
+
+}

@@ -1,0 +1,118 @@
+﻿@page "/MyTests/TestSystemInfo"
+
+@using System.Globalization
+@using System.Net
+
+@using System.Net.NetworkInformation
+
+@attribute [TestTags("health, isolate")]
+@inherits IcuBlazor.IcuTestSuite
+
+@inject NavigationManager Navigator
+@inject HttpClient http
+
+@code {
+
+    string baseUri = "";
+
+    string HostArch() { return (ENV.IsWasm ? "CSB" : "SSB");  }
+
+    protected override void OnInitialized()
+    {
+        baseUri = Navigator.BaseUri; // "https://localhost:5001/";
+        base.OnInitialized();
+    }
+
+
+    async Task raw_ping(string serverName, string url)
+    {
+        // Can use Pings to check if external servers are up & running
+        // Note: This ping works for SSB but not for CSB(Wasm)
+#pragma warning disable CA1416 
+        using (var ping = new Ping()) {
+            var name = $"{serverName}({url})";
+            var uri = new Uri(url);
+            var r = await ping.SendPingAsync(uri.Host);
+            Check().True(r.Status == IPStatus.Success, 
+                $"{name}: Raw Ping returns {r.Status}");
+            Check().True(r.RoundtripTime < 100, 
+                $"{name}: Raw Ping time is quick: {r.RoundtripTime}ms");
+        }
+#pragma warning restore CA1416
+    }
+
+    async Task<string> api_request(string api_url)
+    {
+        var httpMsg = await http.GetAsync(api_url);
+        var result = await httpMsg.Content.ReadAsStringAsync();
+        Check().True(HttpStatusCode.OK==httpMsg.StatusCode,
+            $"api {api_url}: status = {httpMsg.StatusCode}");
+        return result;
+    }
+
+    // Check system environment to ensure that your system 
+    // is in a known good state & is ready to run
+    public async Task Test_SystemInfo() {
+        var s = "";
+
+        // Some tests may fail due to browser differences (:o shocker!)
+        s += $"Browser Detected   = {IcuBlazor.ENV.Browser}\n";
+
+        // Make sure we have consistent image tests
+        var zoom = await this.UI.Eval<double>("window.devicePixelRatio");
+        Check().Equal(zoom, 1.0, "Browser zoom should be 1.0 for consistent tests");
+        s += $"Browser Zoom       = {zoom}\n";
+
+        //There *should* be no differences between CSB and SSB but...
+        s += $"ICU Project Type   = {HostArch()}\n";
+
+        // TODO: add (or remove) environment variables & system checks
+        s += $"User Name          = {Environment.UserName}\n";
+        s += $"Machine Name       = {Environment.MachineName}\n";
+        s += $"Culture Info       = {CultureInfo.CurrentCulture.DisplayName}\n";
+        s += $"Current Directory  = {Environment.CurrentDirectory}\n";
+
+        Check().File($"{HostArch()}_env_values", s, "Environment Values");
+    }
+
+    // Basic connectivity tests
+    public async Task test_servers_are_Live()
+    {
+        if (ENV.IsWasm) {
+            Check().Skip("Raw pings don't work in WASM");
+        } else {
+            await raw_ping("Web Server", baseUri);
+        }
+        // TODO: Ping other servers that your app needs
+    }
+
+    public async Task test_api_endpoints_work()
+    {
+        // Note: By default, SSB does not call MapControllers()
+        
+        // As an example, make web api request to IcuBlazor server
+        var result = await api_request($"{baseUri}api/IcuTest/Ping?c=Hello%20World");
+        Check().File("Ping", result, "Web API works");
+
+        var desc = await api_request($"{baseUri}api/IcuTest/Ping?c=endpoints");
+        Check().File($"{HostArch()}_EndPoints", desc, "List of EndPoints");
+
+        // TODO: Ping other services that your server needs
+        Check().Skip("TODO: add web api or gRPC tests");
+    }
+
+    public async Task test_server_HealthChecks()
+    {
+        // IcuBlazor integration with ASP.NET Health Checks API.
+        // see https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks
+
+        // We get a list of all health statuses.  Currently there is only one...
+        // Add more Health Checks with `services.AddHealthChecks().AddCheck<_>(..)`
+        var result = await api_request($"{baseUri}icuhealth");
+
+        var healthEntries = Conv.FromJson<Models.IcuHealthEntry[]>(result);
+        foreach (var e in healthEntries) {
+            Check().Show($"{e.Key}: {e.Description}", e.Ex, e.Status);
+        }
+    }
+}

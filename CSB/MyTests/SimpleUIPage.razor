@@ -1,0 +1,24 @@
+﻿@page "/MyTests/SimpleUIPage"
+
+<h3>Testing with Image Diffs</h3>
+
+<IcuTestViewer Width="1000">
+    <SimpleUITest />
+</IcuTestViewer>
+
+<br/>
+<p style="width:40em">
+    Image based tests perform a huge number of <i>implicit</i> checks with very little code.
+    In this sample we: 
+    <ul>
+        <li>Take snapshot test ("init") of the component</li>
+        <li>Click the "Hotter" button twice</li>
+        <li>Make another snapshot test ("click_twice")</li>
+        <li>Check the Components internal data model</li>
+    </ul>
+</p>
+<h4>Some things to try:</h4>
+<ul style="width:40em;">
+    <li>Hover over the <code>New, Old & Diff</code> buttons</li>
+    <li>Click <code>?</code> on the Check toolbars.</li>
+</ul>

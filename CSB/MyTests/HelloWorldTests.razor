@@ -1,0 +1,39 @@
+﻿
+@inherits IcuBlazor.IcuTestSuite
+
+@using System.Text
+
+@code {
+
+    public void TestSimpleChecks()
+    {
+        Check().True(2 < 3, "a true test");
+        Check().Equal(6*9, 42, "Fundamentally wrong");
+    }
+
+    [TestTags("simple,mytag")]
+    void Test_Hello_World()
+    {
+        var (a, b) = ("Hello", "World");
+        Check().Equal(a + b, "Hello World", "Not quite right");
+    }
+
+    void xtest_exceptions() // remove x to enable this test
+    {
+        Check().Equal(2+2, 4, "arithmetic works!");
+        Check().Info("This is a Reminder message that will appear in the UI");
+        Check().Info("We expect an exception below");
+        var x = 0;
+        var y = 4/x; // oops
+        Check().Fail("Should not get here");
+    }
+
+    async Task Test_async_method()
+    {
+        var t0 = DateTime.Now;
+        await Task.Delay(500);
+        var dt = (DateTime.Now - t0).TotalMilliseconds;
+
+        Check().True(500 < dt && dt < 550, $"async test waited {dt} ms");
+    }
+}
