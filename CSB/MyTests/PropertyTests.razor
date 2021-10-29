@@ -1,0 +1,26 @@
+﻿@inherits IcuBlazor.IcuTestSuite
+
+@code {
+    public void test_a_property()
+    {
+        var pc = new PropertyChecker();
+        pc.Config.MaxNbOfTest = 50;   // Config FsCheck
+
+        // create 50 arbitrary (char c, string str) values and test them
+        Check().Property(pc, "a demo property", (char c) => {
+            var str = pc.PickAny<string>();
+            return String.IsNullOrEmpty(str) || (str[0] != c);
+        });
+    }
+
+    public void test_base64_conversions()
+    {
+        var pc = new PropertyChecker();
+        Check().Property(pc, "base64 conversions", (string s) => {
+            //if (s == null) return true; // removed for demo
+            var encString = Str.ToBase64(s);
+            var decString = Str.FromBase64(encString);
+            return s.Equals(decString);
+        });
+    }
+}

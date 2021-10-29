@@ -1,0 +1,39 @@
+﻿
+@inherits IcuBlazor.IcuTestSuite
+
+@using IcuBlazor.Graphs
+
+<IcuTestDiv Suite="@this" Width="600" style="border:1px solid red">
+    <VisNetGraph @ref="gref" Data="@visData"></VisNetGraph>
+</IcuTestDiv>
+<br/>
+
+@code {
+
+    VisNetGraph gref;
+    VisNetData visData;
+
+    // render & wait for graph layout & animation to stabilize
+    async Task render_graph<T>(Graph<T> graph)
+    {
+        await this.RenderNow();
+        visData = VisNetData.FromGraph(graph);
+        await this.InvokeAsync(StateHasChanged);
+        await gref.LayoutDone();      
+    }
+
+    public async Task Test_SimpleGraph()
+    {
+        var graph = new Graph<string>();
+        graph.Filename = "simple";
+        graph.Tree = true;
+        graph.TopDownFlow = true;
+
+        graph.AddEdge("A", "B");
+        graph.AddEdge("A", "C");
+        graph.AddEdge("B", "Cool!");
+
+        await render_graph(graph);
+        await Check().Div("simple_graph");
+    }
+}

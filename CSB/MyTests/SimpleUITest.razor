@@ -1,0 +1,28 @@
+﻿@page "/MyTests/SimpleUITest"
+@inherits IcuBlazor.IcuTestSuite
+
+@using CSB.Pages
+
+<IcuTestDiv Suite="@this" Width="300" style="background:#ffc;border:1px dashed red;">
+    <p>Any Html or Blazor content!</p>
+    <WeatherCounter @ref="myComponent"/>
+</IcuTestDiv>
+<br/>
+
+@code {
+
+    WeatherCounter myComponent;
+
+    public async Task Test_Counter_UI()
+    {
+        await Check().Div("init");
+
+        var button = await UI.Find("button", "Hotter");
+        await UI.Click(button);
+        await UI.Click(button);
+        await Check().Div("click_twice");
+
+        Check().True(myComponent.data.TempC == 2, "Directly test component!");
+    }
+
+}

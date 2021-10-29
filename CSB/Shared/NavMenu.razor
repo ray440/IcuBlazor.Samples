@@ -1,0 +1,89 @@
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">IcuBlazor Samples (@BlazorHost)</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/HelloWorldPage">
+                <span class="oi oi-eye" aria-hidden="true"></span> Hello World Tests
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/LogPage">
+                <span class="oi oi-eye" aria-hidden="true"></span> Text Diff Tests
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/SimpleUIPage">
+                <span class="oi oi-eye" aria-hidden="true"></span> Pixel Diff Tests
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/AllTests?filter=$RawHtmlTests">
+                <span class="oi oi-eye" aria-hidden="true"></span> Html Automation
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/AllTests?filter=$BlazorFormTests">
+                <span class="oi oi-eye" aria-hidden="true"></span> Blazor Automation
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/AllTests?filter=%23mytag">
+                <span class="oi oi-eye" aria-hidden="true"></span> #mytag tests
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/AllTests?filter=%23health">
+                <span class="oi oi-eye" aria-hidden="true"></span> #health tests
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/PropertyTestPage">
+                <span class="oi oi-eye" aria-hidden="true"></span> Property Tests
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/DiagramPage">
+                <span class="oi oi-eye" aria-hidden="true"></span> Diagram Tests
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/MyTests/AllTests">
+                <span class="oi oi-eye" aria-hidden="true"></span> All tests
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <br/>
+            <NavLink class="nav-link" href="counter">
+                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            </NavLink>
+        </li>
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string BlazorHost = IcuBlazor.ENV.IsWasm ? "Wasm" : "SSB";
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

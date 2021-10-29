@@ -1,0 +1,160 @@
+﻿@page "/MyTests/RawHtmlTests"
+@inherits IcuBlazor.IcuTestSuite
+
+@using CSB.Pages
+
+@* 
+    IcuBlazor can test raw HTML/Javascript/CSS code.
+    - The SUT(System Under Test) is just html/js/css--no razor.
+    - The entire form is defined in this file for brevity
+      - This is highly irregular and not recommemded
+    - Form includes a variety of input controls to play with.
+*@
+
+<IcuTestDiv Suite="@this" Width="450" style="background:#ffd">
+    <style>
+    .aform {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-gap: 0.2em 0.5em;
+        padding: 1em;
+    }
+    .aform > label {
+        text-align: right;
+        font-weight: bold;
+    }
+    </style>
+
+    <form class="aform">
+        <label for="uname">Full Name</label>
+        <input type="text" id="uname" name="username">
+
+        <label for="uemail">Email</label>
+        <span>
+            <input type="text" id="uemail" name="usermail">
+            <button type="button" onclick="alert('check email')">Check</button>
+        </span>
+
+        <label for="pass">Password</label>
+        <input type="password" id="pass">
+
+        <label for="age">Age</label>
+        <input type="text" name="userage" id="age" size="2" maxlength="2">
+
+        <label>Gender</label>
+        <span>
+            <label><input type="radio" value="f" name="gender"> Female </label>
+            <label><input value="m" type="radio" name="gender"> Male </label>
+        </span>
+
+        <label>Hobbies</label>
+        <span>
+            <label><input type="checkbox" checked> Elevenses </label>
+            <label><input type="checkbox"> 2<sup>nd</sup> Breakfast </label>
+        </span>
+
+        @*<label for="res">Resume</label>
+        <input type="file" id="res">*@
+
+        <label>Country</label>
+        <input class="country" type="text" value="The Shire" name="country" disabled>
+
+        <label for="city">City</label>
+        <span class="city-dropdown">
+            <select id="city" name="city">
+                <option disabled="disabled" selected="selected">--Choose City--</option>
+                <option>Hobbiton</option>
+                <option>Bag End</option>
+            </select>
+        </span>
+
+        <label>Address</label>
+        <textarea rows="3" cols="30"></textarea>
+
+        <div></div>
+        <span>
+            <input type="submit" value="Submit">
+            <input type="reset">
+        </span>
+
+    </form>
+</IcuTestDiv>
+
+@code {
+
+    // Create a wrapper around CompareDiv() to make a better testName 
+    // that distinguishes different browsers & monitor scales.
+    public async Task CompareExt(SuiteChecker cx, string name, string selector = "")
+    {
+        var z = await getZoom();
+        var extended_name = $"{ENV.Browser}_{z}\\{name}";
+        await cx.Div(extended_name, selector);
+    }
+
+    string zoomStr = null;
+
+    async Task<string> getZoom()
+    {
+        if (zoomStr==null) {
+            var r = await this.UI.Eval<double>("window.devicePixelRatio");
+            var z = (int)(r*100);
+            zoomStr = $"x{z}";
+        }
+        return zoomStr;
+    }
+
+
+    public async Task Test_init_form()
+    {
+        await CompareExt(Check(), "init");
+
+        var inputName = await UI.Find("#uname");
+        var inputEmail = await UI.Find("#uemail");
+        var inputAge = await UI.Find("#age");
+        await UI.SetField(inputName, "value", "Samwise Gamgee");
+        await UI.SetField(inputEmail, "value", "sgamgee@me.com");
+        await UI.SetField(inputAge, "value", "52");
+        await CompareExt(Check(), "form_filled");
+    }
+
+    public async Task Test_gender_and_hobbies_entry()
+    {
+        var optFemale = await UI.Find("label", "Female");
+        var optMale = await UI.Find("label", "Male");
+        await UI.Click(optFemale);
+        await CompareExt(Check(), "click_female");
+        await UI.Click(optMale);
+        await CompareExt(Check(), "click_male");
+
+        await UI.Click("label", "Breakfast");
+        await CompareExt(Check(), "click_breakfast");
+
+        await UI.Click("label", "Elevenses");
+        await CompareExt(Check(), "click_11s");
+    }
+
+    public async Task Test_password_entry()
+    {
+        var inputPass = await UI.Find("#pass");
+        await UI.SetField(inputPass, "value", "Rosie3020");
+        await CompareExt(Check(), "password_set", "#pass");
+    }
+
+    public async Task Test_country_entry()
+    {
+        var input = await UI.Find(".country");
+        await UI.SetField(input, "value", "Can change");
+        await CompareExt(Check(), "country_change", ".country");
+    }
+
+    public async Task Test_city_entry()
+    {
+        var id = ".city-dropdown";
+        var input= await UI.Find("#city");
+        await CompareExt(Check(), "city_select_start", id);
+        await UI.SetField(input, "value", "miami");
+        await CompareExt(Check(), "city_select_empty", id);
+        await UI.SetField(input, "value", "Hobbiton");
+        await CompareExt(Check(), "city_select_ok", id);
+    }
+}
