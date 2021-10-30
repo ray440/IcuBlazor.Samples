@@ -1,9 +1,9 @@
 
 # IcuBlazor Samples
 
-This repository shows how to use IcuBlazor
+This repository is a set of example projects showing how to use IcuBlazor.
 
-IcuBlazor is set of UI components that help you develop, debug and unit test Blazor apps.   Inject your app with debug components to help you interact with data and visuals.  Explore UI automation and modern testing strategies such as text diffs, pixel diffs, property testing, and more.
+IcuBlazor is set of UI components that help you develop, debug and unit test Blazor apps. Inject your app with debug components to help you interact with data and visuals.  Explore UI automation and modern testing strategies such as text diffs, pixel diffs, property testing, and more.
 
 ## For full details see [IcuBlazor.com](http://icublazor.com/).
 
