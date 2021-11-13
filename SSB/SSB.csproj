@@ -9,16 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IcuBlazor" Version="1.4.1-preview" />
-    <PackageReference Include="IcuBlazor.Server" Version="1.4.1-preview" />
-    <PackageReference Include="IcuBlazor.Native.Win" Version="1.4.1-preview" />
-
-    <!--
-    <ProjectReference Include="..\..\src\IcuBlazor\IcuBlazor.csproj" />
-    <ProjectReference Include="..\..\src\IcuBlazor.Server\IcuBlazor.Server.fsproj" />
-    <ProjectReference Include="..\..\src\IcuBlazor.Native.Win\IcuBlazor.Native.Win.fsproj" />
-    -->
-
+    <PackageReference Include="IcuBlazor" Version="1.4.2" />
+    <PackageReference Include="IcuBlazor.Server" Version="1.4.2" />
+    <PackageReference Include="IcuBlazor.Native.Win" Version="1.4.2" />
   </ItemGroup>
 
 </Project>

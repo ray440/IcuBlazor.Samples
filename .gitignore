@@ -343,5 +343,6 @@ healthchecksdb
 
 # ignore IcuBlazor test data for now
 /**/icu_data
+/**/docs/manifest.json
 *.zip
 /.ionide
