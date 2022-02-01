@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IcuBlazor.Server" Version="1.4.2" />
-    <PackageReference Include="IcuBlazor.Native.Win" Version="1.4.2" />
+    <PackageReference Include="IcuBlazor.Server" Version="1.4.3" />
+    <PackageReference Include="IcuBlazor.Native.Win" Version="1.4.3" />
   </ItemGroup>
 
   <ItemGroup>
